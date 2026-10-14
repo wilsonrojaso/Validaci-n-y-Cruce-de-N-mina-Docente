@@ -54,7 +54,7 @@
     <header class="bg-green-700 text-white shadow-md py-4">
         <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold">Validación y Cruce de Nómina Docente</h1>
-            <span class="text-green-100 text-sm">CENOP / ARECO / SIGACii</span>
+            <span class="text-green-100 text-sm">CENOP / ARECO / ARACA / SIGACii</span>
         </div>
     </header>
 
@@ -63,22 +63,34 @@
         <div class="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-200">
             <h2 class="text-xl font-semibold mb-6 text-green-800 border-b pb-2">Cargar Archivos de Excel</h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <!-- Planilla ARECO -->
                 <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition text-center">
                     <label class="block text-sm font-medium text-gray-700 mb-2">1. Planilla ARECO</label>
                     <input 
                         type="file" 
-                        id="filePlanilla" 
+                        id="filePlanillaAreco" 
                         accept=".xls,.xlsx" 
                         class="custom-file-input w-full cursor-pointer"
                         aria-label="Cargar archivo Planilla ARECO">
-                    <p class="text-xs text-gray-500 mt-2" id="namePlanilla">Ningún archivo seleccionado</p>
+                    <p class="text-xs text-gray-500 mt-2" id="namePlanillaAreco">Ningún archivo seleccionado</p>
+                </div>
+
+                <!-- Planilla ARACA -->
+                <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition text-center">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">2. Planilla ARACA</label>
+                    <input 
+                        type="file" 
+                        id="filePlanillaAraca" 
+                        accept=".xls,.xlsx" 
+                        class="custom-file-input w-full cursor-pointer"
+                        aria-label="Cargar archivo Planilla ARACA">
+                    <p class="text-xs text-gray-500 mt-2" id="namePlanillaAraca">Ningún archivo seleccionado</p>
                 </div>
                 
                 <!-- Reporte SIGACii -->
                 <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition text-center">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">2. Reporte SIGACii</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">3. Reporte SIGACii</label>
                     <input 
                         type="file" 
                         id="fileReporte" 
@@ -103,7 +115,7 @@
         <div id="resultsContainer" class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hidden">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
-                    <h2 class="text-xl font-semibold text-green-800">Resultados de la Comparación</h2>
+                    <h2 class="text-xl font-semibold text-green-800">Resultados Consolidados</h2>
                     <p class="text-sm text-gray-600 mt-1" id="statsText"></p>
                 </div>
                 <button 
@@ -121,13 +133,15 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Cédula</th>
-                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Nombre Planilla</th>
+                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Nombre ARECO</th>
+                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Nombre ARACA</th>
                             <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Nombre Reporte</th>
-                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Nombres Coinciden</th>
-                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">H. Planilla</th>
+                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">H. ARECO</th>
+                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">H. ARACA</th>
                             <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">H. Reporte</th>
-                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Horas Coinciden</th>
-                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Estado Horas</th>
+                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">ARECO vs ARACA</th>
+                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">ARECO vs Reporte</th>
+                            <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">ARACA vs Reporte</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
@@ -160,12 +174,14 @@
         // ===== CONSTANTES Y VARIABLES GLOBALES =====
         let finalData = [];
         const FILE_INPUT_IDS = {
-            planilla: 'filePlanilla',
-            reporte: 'fileReporte'
+            arecoInput: 'filePlanillaAreco',
+            aracaInput: 'filePlanillaAraca',
+            reporteInput: 'fileReporte'
         };
         const FILE_NAME_IDS = {
-            planilla: 'namePlanilla',
-            reporte: 'nameReporte'
+            arecoInput: 'namePlanillaAreco',
+            aracaInput: 'namePlanillaAraca',
+            reporteInput: 'nameReporte'
         };
 
         // ===== LISTENERS DE CAMBIO DE ARCHIVO =====
@@ -247,36 +263,18 @@
                 .trim();
         }
 
-        function compararNombres(nom1, nom2) {
-            if (!nom1 || !nom2) return "No coinciden (Falta en un archivo)";
-            
-            const arr1 = normalizarNombre(nom1).split(/\s+/).filter(w => w.length > 0);
-            const arr2 = normalizarNombre(nom2).split(/\s+/).filter(w => w.length > 0);
-            
-            let coincidencias = 0;
-            for (let w1 of arr1) {
-                if (w1.length > 2 && arr2.includes(w1)) {
-                    coincidencias++;
-                }
-            }
-            
-            return coincidencias >= 2 ? "Sí" : "Revisar (Nombres diferentes)";
+        function compararHoras(h1, h2) {
+            if (h1 === h2 && h1 > 0) return "Coinciden";
+            if (h1 === 0 && h2 > 0) return `Falta ${h2}h`;
+            if (h2 === 0 && h1 > 0) return `Sobra ${h1}h`;
+            if (h1 > h2) return `Diferencia: +${(h1 - h2).toFixed(2)}h`;
+            if (h2 > h1) return `Diferencia: -${(h2 - h1).toFixed(2)}h`;
+            return "Sin datos";
         }
 
-        function generarEstadoHoras(horasPlanilla, horasReporte) {
-            if (horasPlanilla === 0 && horasReporte > 0) {
-                return `Falta ${horasReporte.toFixed(2)}h (No está en planilla)`;
-            }
-            if (horasReporte === 0 && horasPlanilla > 0) {
-                return `Sobran ${horasPlanilla.toFixed(2)}h (No está en reporte)`;
-            }
-            if (horasReporte > horasPlanilla) {
-                return `Faltan ${(horasReporte - horasPlanilla).toFixed(2)}h en planilla`;
-            }
-            if (horasReporte < horasPlanilla) {
-                return `Sobran ${(horasPlanilla - horasReporte).toFixed(2)}h en planilla`;
-            }
-            return "Horas exactas";
+        function getEstiloComparacion(h1, h2) {
+            if (h1 === h2 && h1 > 0) return "text-green-600 font-medium";
+            return "text-red-600 font-medium";
         }
 
         function actualizarBotón(btn, procesando = false) {
@@ -289,21 +287,27 @@
             }
         }
 
-        function crearFilaTabla(id, dataPlanilla, dataReporte, matchNombre, matchHoras, estadoHoras) {
+        function crearFilaTabla(id, dataAreco, dataAraca, dataReporte) {
             const tr = document.createElement('tr');
-            const rowClass = matchHoras === "Sí" ? "bg-white" : "bg-red-50";
-            const textClass = matchHoras === "Sí" ? "text-green-600 font-medium" : "text-red-600 font-medium";
+            
+            const cmpArecoAraca = dataAreco.horas === dataAraca.horas;
+            const cmpArecoReporte = dataAreco.horas === dataReporte.horas;
+            const cmpAracaReporte = dataAraca.horas === dataReporte.horas;
+            
+            const rowClass = (cmpArecoAraca && cmpArecoReporte && cmpAracaReporte) ? "bg-white" : "bg-red-50";
 
             tr.className = rowClass + " hover:bg-gray-100 transition";
             tr.innerHTML = `
                 <td class="px-3 py-2 whitespace-nowrap text-gray-900 font-medium">${escapeHtml(id)}</td>
-                <td class="px-3 py-2 text-gray-700">${escapeHtml(dataPlanilla.nombre)}</td>
+                <td class="px-3 py-2 text-gray-700">${escapeHtml(dataAreco.nombre)}</td>
+                <td class="px-3 py-2 text-gray-700">${escapeHtml(dataAraca.nombre)}</td>
                 <td class="px-3 py-2 text-gray-700">${escapeHtml(dataReporte.nombre)}</td>
-                <td class="px-3 py-2 text-gray-700">${escapeHtml(matchNombre)}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-gray-700 text-center">${dataPlanilla.horas.toFixed(2)}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-700 text-center">${dataAreco.horas.toFixed(2)}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-700 text-center">${dataAraca.horas.toFixed(2)}</td>
                 <td class="px-3 py-2 whitespace-nowrap text-gray-700 text-center">${dataReporte.horas.toFixed(2)}</td>
-                <td class="px-3 py-2 whitespace-nowrap ${textClass}">${escapeHtml(matchHoras)}</td>
-                <td class="px-3 py-2 ${textClass}">${escapeHtml(estadoHoras)}</td>
+                <td class="px-3 py-2 text-center ${getEstiloComparacion(dataAreco.horas, dataAraca.horas)}">${escapeHtml(compararHoras(dataAreco.horas, dataAraca.horas))}</td>
+                <td class="px-3 py-2 text-center ${getEstiloComparacion(dataAreco.horas, dataReporte.horas)}">${escapeHtml(compararHoras(dataAreco.horas, dataReporte.horas))}</td>
+                <td class="px-3 py-2 text-center ${getEstiloComparacion(dataAraca.horas, dataReporte.horas)}">${escapeHtml(compararHoras(dataAraca.horas, dataReporte.horas))}</td>
             `;
             return tr;
         }
@@ -321,11 +325,12 @@
 
         // ===== LISTENER DEL BOTÓN PROCESAR =====
         document.getElementById('btnProcesar').addEventListener('click', async () => {
-            const file1 = document.getElementById(FILE_INPUT_IDS.planilla).files[0];
-            const file2 = document.getElementById(FILE_INPUT_IDS.reporte).files[0];
+            const fileAreco = document.getElementById(FILE_INPUT_IDS.arecoInput).files[0];
+            const fileAraca = document.getElementById(FILE_INPUT_IDS.aracaInput).files[0];
+            const fileReporte = document.getElementById(FILE_INPUT_IDS.reporteInput).files[0];
 
-            if (!file1 || !file2) {
-                mostrarModal("Archivos faltantes", "Por favor selecciona ambos archivos de Excel para continuar.");
+            if (!fileAreco || !fileAraca || !fileReporte) {
+                mostrarModal("Archivos faltantes", "Por favor selecciona los tres archivos de Excel para continuar.");
                 return;
             }
 
@@ -333,17 +338,19 @@
             actualizarBotón(btn, true);
 
             try {
-                const [dataPlanilla, dataReporte] = await Promise.all([
-                    leerExcel(file1),
-                    leerExcel(file2)
+                const [dataPlanillaAreco, dataPlanillaAraca, dataReporte] = await Promise.all([
+                    leerExcel(fileAreco),
+                    leerExcel(fileAraca),
+                    leerExcel(fileReporte)
                 ]);
 
-                const mapPlanilla = new Map();
+                const mapPlanillaAreco = new Map();
+                const mapPlanillaAraca = new Map();
                 const mapReporte = new Map();
                 const allIds = new Set();
 
-                // Procesar Planilla
-                dataPlanilla.forEach(row => {
+                // Procesar Planilla ARECO
+                dataPlanillaAreco.forEach(row => {
                     let idRaw = getHeaderValue(row, ["No. DE CÉDULA", "CEDULA", "IDENTIFICACION"]);
                     let nombre = getHeaderValue(row, ["APELLIDOS Y NOMBRES", "NOMBRE", "NOMBRES"]);
                     let horasRaw = getHeaderValue(row, ["No. HORAS", "HORAS", "HORA"]);
@@ -353,14 +360,14 @@
                         let horas = parseFloat(horasRaw) || 0;
                         if (id) {
                             allIds.add(id);
-                            if (mapPlanilla.has(id)) {
-                                let prev = mapPlanilla.get(id);
-                                mapPlanilla.set(id, { 
+                            if (mapPlanillaAreco.has(id)) {
+                                let prev = mapPlanillaAreco.get(id);
+                                mapPlanillaAreco.set(id, { 
                                     nombre: nombre || prev.nombre, 
                                     horas: prev.horas + horas 
                                 });
                             } else {
-                                mapPlanilla.set(id, { 
+                                mapPlanillaAreco.set(id, { 
                                     nombre: nombre || "Desconocido", 
                                     horas: horas 
                                 });
@@ -369,7 +376,34 @@
                     }
                 });
 
-                // Procesar Reporte
+                // Procesar Planilla ARACA
+                dataPlanillaAraca.forEach(row => {
+                    let idRaw = getHeaderValue(row, ["No. DE CÉDULA", "CEDULA", "IDENTIFICACION"]);
+                    let nombre = getHeaderValue(row, ["APELLIDOS Y NOMBRES", "NOMBRE", "NOMBRES"]);
+                    let horasRaw = getHeaderValue(row, ["No. HORAS", "HORAS", "HORA"]);
+                    
+                    if (idRaw) {
+                        let id = cleanID(idRaw);
+                        let horas = parseFloat(horasRaw) || 0;
+                        if (id) {
+                            allIds.add(id);
+                            if (mapPlanillaAraca.has(id)) {
+                                let prev = mapPlanillaAraca.get(id);
+                                mapPlanillaAraca.set(id, { 
+                                    nombre: nombre || prev.nombre, 
+                                    horas: prev.horas + horas 
+                                });
+                            } else {
+                                mapPlanillaAraca.set(id, { 
+                                    nombre: nombre || "Desconocido", 
+                                    horas: horas 
+                                });
+                            }
+                        }
+                    }
+                });
+
+                // Procesar Reporte SIGACii
                 dataReporte.forEach(row => {
                     let idRaw = getHeaderValue(row, ["IDENTIFICACION", "DOCUMENTO", "CEDULA", "No. DE CÉDULA"]);
                     let nombre = getHeaderValue(row, ["NOMBRES", "NOMBRE", "APELLIDOS Y NOMBRES"]);
@@ -401,46 +435,46 @@
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = '';
 
-                let coincidenciasHoras = 0;
+                let coincidenciasCompletas = 0;
                 let discrepancias = 0;
 
                 allIds.forEach(id => {
-                    const dPlanilla = mapPlanilla.get(id) || { nombre: "---", horas: 0 };
+                    const dAreco = mapPlanillaAreco.get(id) || { nombre: "---", horas: 0 };
+                    const dAraca = mapPlanillaAraca.get(id) || { nombre: "---", horas: 0 };
                     const dReporte = mapReporte.get(id) || { nombre: "---", horas: 0 };
 
-                    let hp = dPlanilla.horas;
-                    let hr = dReporte.horas;
-                    
-                    let matchNombre = compararNombres(
-                        dPlanilla.nombre === "---" ? "" : dPlanilla.nombre, 
-                        dReporte.nombre === "---" ? "" : dReporte.nombre
-                    );
+                    const cmpArecoAraca = dAreco.horas === dAraca.horas;
+                    const cmpArecoReporte = dAreco.horas === dReporte.horas;
+                    const cmpAracaReporte = dAraca.horas === dReporte.horas;
+                    const coincidenciaCompleta = cmpArecoAraca && cmpArecoReporte && cmpAracaReporte;
 
-                    let matchHoras = (hp === hr && hp > 0) ? "Sí" : "No";
-                    let estadoHoras = generarEstadoHoras(hp, hr);
-
-                    if (matchHoras === "Sí") coincidenciasHoras++;
-                    else discrepancias++;
+                    if (coincidenciaCompleta && dAreco.horas > 0) {
+                        coincidenciasCompletas++;
+                    } else {
+                        discrepancias++;
+                    }
 
                     // Guardar para exportar
                     finalData.push({
                         "Cédula": id,
-                        "Nombre Planilla": dPlanilla.nombre,
+                        "Nombre ARECO": dAreco.nombre,
+                        "Nombre ARACA": dAraca.nombre,
                         "Nombre Reporte": dReporte.nombre,
-                        "Nombres Coinciden": matchNombre,
-                        "Horas Planilla": hp,
-                        "Horas Reporte": hr,
-                        "Horas Coinciden": matchHoras,
-                        "Estado Horas": estadoHoras
+                        "Horas ARECO": dAreco.horas,
+                        "Horas ARACA": dAraca.horas,
+                        "Horas Reporte": dReporte.horas,
+                        "ARECO vs ARACA": compararHoras(dAreco.horas, dAraca.horas),
+                        "ARECO vs Reporte": compararHoras(dAreco.horas, dReporte.horas),
+                        "ARACA vs Reporte": compararHoras(dAraca.horas, dReporte.horas)
                     });
 
                     // Añadir a la tabla
-                    tbody.appendChild(crearFilaTabla(id, dPlanilla, dReporte, matchNombre, matchHoras, estadoHoras));
+                    tbody.appendChild(crearFilaTabla(id, dAreco, dAraca, dReporte));
                 });
 
                 // Mostrar estadísticas
                 document.getElementById('statsText').textContent = 
-                    `Total: ${finalData.length} registros | Coincidencias: ${coincidenciasHoras} | Discrepancias: ${discrepancias}`;
+                    `Total: ${finalData.length} registros | Coincidencias Completas: ${coincidenciasCompletas} | Discrepancias: ${discrepancias}`;
 
                 document.getElementById('resultsContainer').classList.remove('hidden');
                 window.scrollTo(0, document.getElementById('resultsContainer').offsetTop - 100);
@@ -470,17 +504,19 @@
                 // Ajustar ancho de columnas
                 ws['!cols'] = [
                     { wch: 15 }, // Cédula
-                    { wch: 35 }, // Nombre Planilla
-                    { wch: 35 }, // Nombre Reporte
-                    { wch: 22 }, // Nombres Coinciden
-                    { wch: 15 }, // Horas Planilla
+                    { wch: 30 }, // Nombre ARECO
+                    { wch: 30 }, // Nombre ARACA
+                    { wch: 30 }, // Nombre Reporte
+                    { wch: 15 }, // Horas ARECO
+                    { wch: 15 }, // Horas ARACA
                     { wch: 15 }, // Horas Reporte
-                    { wch: 15 }, // Horas Coinciden
-                    { wch: 40 }  // Estado Horas
+                    { wch: 25 }, // ARECO vs ARACA
+                    { wch: 25 }, // ARECO vs Reporte
+                    { wch: 25 }  // ARACA vs Reporte
                 ];
 
                 XLSX.utils.book_append_sheet(wb, ws, "Comparacion");
-                XLSX.writeFile(wb, `Validacion_Nomina_${new Date().toISOString().split('T')[0]}.xlsx`);
+                XLSX.writeFile(wb, `Validacion_Nomina_Consolidada_${new Date().toISOString().split('T')[0]}.xlsx`);
             } catch (error) {
                 console.error('Error descarga:', error);
                 mostrarModal("Error de descarga", "No se pudo generar el archivo Excel.");
